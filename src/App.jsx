@@ -8,6 +8,7 @@ import CoursePage from "./pages/CoursePage";
 import CreateCoursePage from "./pages/CreateCoursePage";
 import CreateQuizPage from "./pages/CreateQuizPage";
 import AssignmentPage from "./pages/AssignmentPage";
+import ChangePasswordPage from './pages/ChangePasswordPage';
 
 function App() {
     return (
@@ -22,6 +23,7 @@ function App() {
                 <Route path="/create-course" element={<CreateCoursePage />} />
                 <Route path="/create-quiz" element={<CreateQuizPage />} />
                 <Route path="/assignment/:id" element={<AssignmentPage />} />
+                <Route path="/change-password" element={<ChangePasswordPage />} />
             </Routes>
         </Router>
     );
