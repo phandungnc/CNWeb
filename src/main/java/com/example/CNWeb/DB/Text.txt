@@ -1,0 +1,150 @@
+-- ================================
+-- 1. ROLES
+-- ================================
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(20) UNIQUE NOT NULL
+);
+
+INSERT INTO roles (name) VALUES
+('ADMIN'),
+('TEACHER'),
+('STUDENT');
+
+-- ================================
+-- 2. USERS (1 user = 1 role)
+-- ================================
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(50) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    user_code VARCHAR(50) UNIQUE NOT NULL,
+    role_id INT NOT NULL,
+    created_at DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_user_role
+        FOREIGN KEY (role_id)
+        REFERENCES roles(id)
+);
+
+-- ================================
+-- 3. COURSES (khóa học)
+-- ================================
+CREATE TABLE courses (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    note TEXT,
+    start_time TIMESTAMP,
+    end_time TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ================================
+-- 4. COURSE_MEMBERS
+-- ================================
+CREATE TABLE course_members (
+    course_id INTEGER REFERENCES subjects(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES subjects(id) ON DELETE CASCADE,
+    class_code VARCHAR(50) NOT NULL,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+);
+
+-- ================================
+-- 5. QUESTIONS (ngân hàng câu hỏi)
+-- ================================
+CREATE TABLE questions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    course_id UUID NOT NULL,
+    content TEXT NOT NULL,
+    question_type VARCHAR(20) NOT NULL, -- SINGLE | MULTIPLE
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_question_course
+        FOREIGN KEY (course_id)
+        REFERENCES courses(id)
+        ON DELETE CASCADE
+);
+
+-- ================================
+-- 6. ANSWERS
+-- ================================
+CREATE TABLE answers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    question_id UUID NOT NULL,
+    content TEXT NOT NULL,
+    is_correct BOOLEAN NOT NULL,
+
+    CONSTRAINT fk_answer_question
+        FOREIGN KEY (question_id)
+        REFERENCES questions(id)
+        ON DELETE CASCADE
+);
+
+-- ================================
+-- 7. EXAMS (đề thi)
+-- ================================
+CREATE TABLE exams (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    course_id UUID NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    duration_minutes INT NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_exam_course
+        FOREIGN KEY (course_id)
+        REFERENCES courses(id)
+        ON DELETE CASCADE
+);
+
+-- ================================
+-- 8. EXAM_QUESTIONS
+-- ================================
+CREATE TABLE exam_questions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    exam_id UUID NOT NULL,
+    question_id UUID NOT NULL,
+
+    CONSTRAINT fk_exam_question_exam
+        FOREIGN KEY (exam_id)
+        REFERENCES exams(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_exam_question_question
+        FOREIGN KEY (question_id)
+        REFERENCES questions(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT uq_exam_question UNIQUE (exam_id, question_id)
+);
+
+-- ================================
+-- 9. EXAM_ATTEMPTS (bài làm)
+-- ================================
+CREATE TABLE exam_attempts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    exam_id UUID NOT NULL,
+    student_id UUID NOT NULL,
+    start_time TIMESTAMP,
+    end_time TIMESTAMP,
+    score NUMERIC(5,2),
+
+    CONSTRAINT fk_attempt_exam
+        FOREIGN KEY (exam_id)
+        REFERENCES exams(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_attempt_student
+        FOREIGN KEY (student_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT uq_exam_student UNIQUE (exam_id, student_id)
+);
+
+-- ==============================
+
+

@@ -1,4 +1,4 @@
-package com.example.project_III;
+package com.example.CNWeb;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
