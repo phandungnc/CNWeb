@@ -21,7 +21,7 @@ CREATE TABLE user_sessions (
     user_id INTEGER  REFERENCES users(id) ON DELETE CASCADE,
     refresh_token TEXT NOT NULL UNIQUE,
     expiry_date TIMESTAMP NOT NULL,
-    created_at DEFAULT CURRENT_TIMESTAMP,
+    created_at DEFAULT TIMESTAMP CURRENT_TIMESTAMP,
 
 );
 
@@ -62,7 +62,7 @@ CREATE TABLE bank (
     course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     question_type VARCHAR(20) NOT NULL, -- SINGLE (1 chọn), MULTIPLE (nhiều chọn)
-    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,,
+    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 -- 9. các lựa chọn trong câu hỏi và đáp án
@@ -76,7 +76,7 @@ CREATE TABLE question_options (
 -- 10. đề thi
 CREATE TABLE exams (
     id SERIAL PRIMARY KEY,
-    course_id INTEGER REFERENCES subjects(id) ON DELETE CASCADE,
+    course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
     title VARCHAR(100) NOT NULL,
     duration_minutes INTEGER NOT NULL,
     start_time TIMESTAMP NOT NULL,
@@ -108,6 +108,6 @@ CREATE TABLE student_responses (
     submission_id INTEGER REFERENCES exam_submissions(id) ON DELETE CASCADE,
     question_id INTEGER REFERENCES question_bank(id),
     option_id BIGINT REFERENCES question_options(id), -- Option sinh viên chọn
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uq_response UNIQUE (submission_id, question_id, option_id)
 );
