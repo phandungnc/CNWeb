@@ -6,27 +6,21 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "courses")
+@Table(name = "classes")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
-public class Course {
-
+public class ClassEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 100)
-    private String name;
+    @Column(name = "class_code", nullable = false, unique = true, length = 20)
+    private String classCode;
 
-    private String note;
-
-    @Column(name = "start_time")
-    private LocalDateTime startTime;
-
-    @Column(name = "end_time")
-    private LocalDateTime endTime;
+    @ManyToOne
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
