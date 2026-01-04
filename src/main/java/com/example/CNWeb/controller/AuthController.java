@@ -1,5 +1,5 @@
 package com.example.CNWeb.controller;
-
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import com.example.CNWeb.dto.Request.ChangePasswordRequest;
 import com.example.CNWeb.dto.Request.LoginRequest;
 import com.example.CNWeb.dto.Request.RefreshTokenRequest;
@@ -12,12 +12,15 @@ import com.example.CNWeb.security.JwtUtil;
 import com.example.CNWeb.service.UserSessionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -30,6 +33,7 @@ public class AuthController {
     private final UserRepository userRepo;
     private final UserSessionService sessionService;
     private final PasswordEncoder passwordEncoder;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("/login")
     public RestResponse<LoginResponse> login(@RequestBody @Valid LoginRequest req) {

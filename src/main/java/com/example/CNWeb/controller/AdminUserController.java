@@ -1,6 +1,6 @@
 package com.example.CNWeb.controller;
 
-import com.example.CNWeb.dto.Admin.AdminDTO;
+import com.example.CNWeb.dto.AdminDTO;
 import com.example.CNWeb.dto.Response.UserResponseDTO;
 import com.example.CNWeb.service.AdminUserService;
 import lombok.RequiredArgsConstructor;

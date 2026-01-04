@@ -41,19 +41,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // ep để React connect vào: http://localhost:8080/ws
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*") // Cho phép mọi domain
-                .withSockJS(); //hỗ trợ fallback nếu trình duyệt không có WebSocket
+                .setAllowedOrigins("http://localhost:5173") // Chỉ định rõ Frontend
+                .withSockJS();
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // client sẽ subscribe
-        registry.enableSimpleBroker("/topic", "/user");
-        // client gửi tin nhắn lên server
+        registry.enableSimpleBroker("/topic", "/user", "/queue");
         registry.setApplicationDestinationPrefixes("/app");
-        // thông báo riêng tới user
         registry.setUserDestinationPrefix("/user");
     }
 
@@ -64,31 +60,40 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-                // kiểm tra token khi gửi connect
+                // Chỉ kiểm tra khi Client bắt đầu kết nối (CONNECT)
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    String authHeader = accessor.getFirstNativeHeader("Authorization");
+                    try {
+                        String authHeader = accessor.getFirstNativeHeader("Authorization");
 
-                    if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                        String token = authHeader.substring(7);
+                        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                            String token = authHeader.substring(7);
 
-                        String userCode = jwtUtil.getUserCode(token);
-                        String role = jwtUtil.getRole(token);
-                        UUID sessionId = jwtUtil.getSessionId(token);
+                            // Parse Token
+                            String userCode = jwtUtil.getUserCode(token);
+                            String role = jwtUtil.getRole(token);
+                            UUID sessionId = jwtUtil.getSessionId(token);
 
-                        sessionService.validateSession(sessionId);
+                    //        sessionService.validateSession(sessionId);
 
-                        UsernamePasswordAuthenticationToken auth =
-                                new UsernamePasswordAuthenticationToken(
-                                        userCode,
-                                        null,
-                                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
-                                );
-
-                        accessor.setUser(auth);
+                            //  Xác thực thành công
+                            UsernamePasswordAuthenticationToken auth =
+                                    new UsernamePasswordAuthenticationToken(
+                                            userCode,
+                                            null,
+                                            List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                                    );
+                            accessor.setUser(auth);
+                            log.info("WebSocket Authenticated: User={}, Session={}", userCode, sessionId);
+                        } else {
+                            log.warn("WebSocket Connect: Thiếu Header Authorization");
+                        }
+                    } catch (Exception e) {
+                        // Bắt lỗi để không crash Interceptor
+                        log.error("WebSocket Authentication Failed: {}", e.getMessage());
+                        // Trả về null để từ chối kết nối một cách an toàn
+                        return null;
                     }
                 }
-
-
                 return message;
             }
         });

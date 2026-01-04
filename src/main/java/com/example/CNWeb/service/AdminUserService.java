@@ -1,6 +1,6 @@
 package com.example.CNWeb.service;
 
-import com.example.CNWeb.dto.Admin.AdminDTO;
+import com.example.CNWeb.dto.AdminDTO;
 import com.example.CNWeb.dto.Response.UserResponseDTO;
 import com.example.CNWeb.entity.Role;
 import com.example.CNWeb.entity.User;

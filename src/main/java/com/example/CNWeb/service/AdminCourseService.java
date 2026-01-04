@@ -1,6 +1,6 @@
 package com.example.CNWeb.service;
 
-import com.example.CNWeb.dto.Admin.AdminDTO;
+import com.example.CNWeb.dto.AdminDTO;
 import com.example.CNWeb.dto.Response.UserResponseDTO;
 import com.example.CNWeb.entity.*;
 import com.example.CNWeb.repository.*;
@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,6 +104,14 @@ public class AdminCourseService {
         courseRepo.deleteById(id);
     }
 
+    // tất cả các lopws học
+    public List<ClassEntity> searchAllClasses(String keyword) {
+        if (keyword != null && !keyword.isEmpty()) {
+            return classRepo.findByClassCodeContaining(keyword);
+        }
+        return classRepo.findAll();
+    }
+
     // Tạo lớp học mới trong khóa
     public ClassEntity createClass(AdminDTO.ClassRequest req) {
         if (classRepo.existsByClassCode(req.getClassCode())) {
@@ -172,11 +179,11 @@ public class AdminCourseService {
             User user = userRepo.findByUserCode(userCode)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy user: " + userCode));
 
-            //hs thì k dc vào khóa này r
+            //hs thì k dc vào khóa này rồi
             if ("STUDENT".equals(user.getRole().getName())) {
                 boolean alreadyJoinedCourse = classMemberRepo.existsByUserIdAndCourseId(user.getId(), courseId);
                 if (alreadyJoinedCourse) {
-                    throw new RuntimeException("Học sinh " + userCode + " đã tham gia môn học này ở lớp khác rồi!");
+                    throw new RuntimeException("Học sinh " + userCode + " đã tham gia khóa học này ở lớp khác!");
                 }
             }
 

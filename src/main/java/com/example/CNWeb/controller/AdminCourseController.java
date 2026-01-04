@@ -1,6 +1,6 @@
 package com.example.CNWeb.controller;
 
-import com.example.CNWeb.dto.Admin.AdminDTO;
+import com.example.CNWeb.dto.AdminDTO;
 import com.example.CNWeb.service.AdminCourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 public class AdminCourseController {
 
     private final AdminCourseService courseService;
-
 
     //lấy ds có tìm kiếm
     @GetMapping("/courses")
@@ -43,6 +42,12 @@ public class AdminCourseController {
     public ResponseEntity<?> deleteCourse(@PathVariable Integer id) {
         courseService.deleteCourse(id);
         return ResponseEntity.ok("Đã xóa khóa học thành công");
+    }
+
+    // Tất cả lớp học
+    @GetMapping("/all-classes")
+    public ResponseEntity<?> getAllClasses(@RequestParam(required = false) String keyword) {
+        return ResponseEntity.ok(courseService.searchAllClasses(keyword));
     }
 
 

@@ -16,6 +16,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByUserCode(String userCode);
     boolean existsByEmail(String email);
     boolean existsByPhoneNumber(String phoneNumber);
+    long countByRole_Name(String roleName);
 
     //tìm kiếm ng dùng tối ưu
     @Query("SELECT new com.example.CNWeb.dto.Response.UserResponseDTO(" +

@@ -1,4 +1,4 @@
-package com.example.CNWeb.dto.Admin;
+package com.example.CNWeb.dto;
 
 import lombok.Data;
 import java.util.List;
