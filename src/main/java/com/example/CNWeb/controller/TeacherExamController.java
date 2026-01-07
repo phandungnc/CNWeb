@@ -2,11 +2,14 @@ package com.example.CNWeb.controller;
 
 import com.example.CNWeb.dto.TeacherDTO;
 import com.example.CNWeb.service.TeacherExamService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 import java.util.UUID;
 
 @RestController
@@ -80,5 +83,11 @@ public class TeacherExamController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         examService.autoGenerateExamQuestions(id, req, auth.getName());
         return ResponseEntity.ok("Đã tạo câu hỏi ngẫu nhiên thành công");
+    }
+
+    //API xuất Excel
+    @GetMapping("/{examId}/export")
+    public void exportExamResults(@PathVariable UUID examId, HttpServletResponse response) throws IOException {
+        examService.exportExamResultToExcel(examId, response);
     }
 }

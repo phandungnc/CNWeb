@@ -2,6 +2,9 @@ package com.example.CNWeb.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -146,6 +149,22 @@ public class TeacherDTO {
         private Integer correctCount;
         private Integer totalQuestions;
         private Double score;
+        private Integer invalidAction;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ExamResultResponse {
+        private Integer submissionId;
+        private String studentCode;
+        private String fullName;
+        private String classCode;
+        private String startTime;
+        private String submitTime;
+        private Integer correctCount;
+        private Integer totalQuestions;
+        private BigDecimal score;
         private Integer invalidAction;
     }
 }

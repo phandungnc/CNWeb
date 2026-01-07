@@ -75,6 +75,8 @@ public class StudentDTO {
         private Integer submissionId;    // ID lượt làm bài
         private Integer durationMinutes; // Thời gian làm bài
         private String endTime;          // Thời gian phải nộp bài
+        private Integer currentViolations;
+        private List<ExistingAnswer> currentAnswers;
     }
     // câu hỏi dề thi
     @Data
@@ -116,5 +118,12 @@ public class StudentDTO {
         private Integer totalQuestions;
         private Double score;
         private Integer invalidAction;
+    }
+    // hàm phụ
+    @Data
+    @AllArgsConstructor
+    public static class ExistingAnswer {
+        private Integer questionId;
+        private List<Integer> selectedOptionIds;
     }
 }

@@ -50,43 +50,48 @@ public class StudentExamService {
         Exam exam = examRepo.findById(examId)
                 .orElseThrow(() -> new RuntimeException("Đề thi không tồn tại"));
 
-        // ktra tgian
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(exam.getStartTime())) throw new RuntimeException("Chưa đến giờ làm bài!");
         if (now.isAfter(exam.getEndTime())) throw new RuntimeException("Đề thi đã kết thúc!");
 
-        // ktra bài hs đang làm
-        Optional<ExamSubmission> existing = submissionRepo.findByStudentIdAndExamIdAndStatus(
-                student.getId(), examId, "IN_PROGRESS");
+        //Tìm hoặc Tạo bài thi
+        ExamSubmission submission = submissionRepo.findByStudentIdAndExamIdAndStatus(
+                student.getId(), examId, "IN_PROGRESS").orElse(null);
 
-        if (existing.isPresent()) {
-            return new StudentDTO.StartExamResponse(
-                    existing.get().getId(),
-                    exam.getDurationMinutes(),
-                    calculateEndTime(existing.get(), exam).toString()
-            );
+        if (submission == null) {
+            long attempts = submissionRepo.countByExamIdAndStudentId(examId, student.getId());
+            if (attempts >= exam.getMaxAttempts()) throw new RuntimeException("Hết lượt làm bài!");
+
+            submission = new ExamSubmission();
+            submission.setExam(exam);
+            submission.setStudent(student);
+            submission.setStartTime(now);
+            submission.setStatus("IN_PROGRESS");
+            submission.setAttemptNumber((int) attempts + 1);
+            submission.setInvalidAction(0);
+            submissionRepo.save(submission);
         }
 
-        // ktra số lần làm
-        long attempts = submissionRepo.countByExamIdAndStudentId(examId, student.getId());
-        if (attempts >= exam.getMaxAttempts()) {
-            throw new RuntimeException("Bạn đã hết lượt làm bài!");
-        }
+        // lấy danh sách đáp án đã lưu
+        List<StudentAnswer> savedAnswers = answerRepo.findBySubmissionId(submission.getId());
 
-        //tạo Submission mới
-        ExamSubmission submission = new ExamSubmission();
-        submission.setExam(exam);
-        submission.setStudent(student);
-        submission.setStartTime(now);
-        submission.setStatus("IN_PROGRESS");
-        submission.setAttemptNumber((int) attempts + 1);
+        // gom nhóm các đáp án theo câu hỏi cho mutil
+        Map<Integer, List<Integer>> grouped = savedAnswers.stream()
+                .collect(Collectors.groupingBy(
+                        a -> a.getQuestion().getId(),
+                        Collectors.mapping(a -> a.getOption().getId(), Collectors.toList())
+                ));
 
-        submissionRepo.save(submission);
+        List<StudentDTO.ExistingAnswer> existingAnswers = new ArrayList<>();
+        grouped.forEach((qId, optIds) -> existingAnswers.add(new StudentDTO.ExistingAnswer(qId, optIds)));
 
+        //Trả về đầy đủ
         return new StudentDTO.StartExamResponse(
                 submission.getId(),
                 exam.getDurationMinutes(),
-                calculateEndTime(submission, exam).toString()
+                calculateEndTime(submission, exam).toString(),
+                submission.getInvalidAction() == null ? 0 : submission.getInvalidAction(),
+                existingAnswers
         );
     }
 

@@ -3,12 +3,20 @@ package com.example.CNWeb.service;
 import com.example.CNWeb.dto.TeacherDTO;
 import com.example.CNWeb.entity.*;
 import com.example.CNWeb.repository.*;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -20,6 +28,9 @@ public class TeacherExamService {
     private final ExamRepository examRepo;
     private final CourseRepository courseRepo;
     private final UserRepository userRepo;
+    private final ExamSubmissionRepository submissionRepo;
+    private final StudentAnswerRepository answerRepo;
+    private final ClassMemberRepository classMemberRepo;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -210,5 +221,127 @@ public class TeacherExamService {
             throw new RuntimeException("Ngày thi không được trễ hơn ngày kết thúc khóa học (" +
                     course.getEndTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")");
         }
+    }
+
+    //xuat file kq
+    public List<TeacherDTO.ExamResultResponse> getExamResults(UUID examId) {
+        List<ExamSubmission> submissions = submissionRepo.findByExamIdOrderByScoreDesc(examId);
+        long totalQuestions = examQuestionRepo.countByExamId(examId);
+
+        List<TeacherDTO.ExamResultResponse> results = submissions.stream().map(sub -> {
+            int correctCount = countCorrectAnswers(sub);
+            String classCode = getStudentClassCode(sub.getStudent().getUserCode(), sub.getExam().getCourse().getId());
+
+            return new TeacherDTO.ExamResultResponse(
+                    sub.getId(),
+                    sub.getStudent().getUserCode(),
+                    sub.getStudent().getFullName(),
+                    classCode,
+                    sub.getStartTime() != null ? sub.getStartTime().format(formatter) : "",
+                    sub.getSubmitTime() != null ? sub.getSubmitTime().format(formatter) : "Chưa nộp",
+                    correctCount,
+                    (int) totalQuestions,
+                    sub.getScore(),
+                    sub.getInvalidAction()
+            );
+        }).collect(Collectors.toList());
+
+        // sắp xếp theo mã lớp
+        results.sort(Comparator.comparing(TeacherDTO.ExamResultResponse::getClassCode));
+        return results;
+    }
+
+    //tính số câu đúng
+    private int countCorrectAnswers(ExamSubmission submission) {
+        List<StudentAnswer> answers = answerRepo.findBySubmissionId(submission.getId());
+        List<BankQuestion> questions = questionRepo.findQuestionsInExam(submission.getExam().getId());
+        int correct = 0;
+
+        for (BankQuestion q : questions) {
+            Set<Integer> correctOptionIds = q.getOptions().stream()
+                    .filter(QuestionOption::getIsCorrect)
+                    .map(QuestionOption::getId)
+                    .collect(Collectors.toSet());
+
+            Set<Integer> selectedOptionIds = answers.stream()
+                    .filter(a -> a.getQuestion().getId().equals(q.getId()))
+                    .map(a -> a.getOption().getId())
+                    .collect(Collectors.toSet());
+
+            if (correctOptionIds.equals(selectedOptionIds) && !correctOptionIds.isEmpty()) {
+                correct++;
+            }
+        }
+        return correct;
+    }
+
+    // lấy code lớp
+    private String getStudentClassCode(String userCode, Integer courseId) {
+        return classMemberRepo.findClassByStudentAndCourse(userCode, courseId)
+                .map(ClassEntity::getClassCode)
+                .orElse("---");
+    }
+
+
+    // xuat file kq
+    public void exportExamResultToExcel(UUID examId, HttpServletResponse response) throws IOException {
+        //Lấy dữ liệu (Dữ liệu đã được sắp xếp trong getExamResults)
+        List<TeacherDTO.ExamResultResponse> results = getExamResults(examId);
+        Exam exam = examRepo.findById(examId).orElseThrow();
+
+        //Tạo file Excel
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("KetQua");
+
+        //header
+        Row headerRow = sheet.createRow(0);
+        String[] columns = {"STT", "Mã SV", "Họ và tên", "Lớp", "Số câu đúng", "Thời gian làm", "Thời gian nộp", "Điểm số", "Vi phạm"};
+
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        headerStyle.setFont(font);
+
+        for (int i = 0; i < columns.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columns[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Body
+        int rowNum = 1;
+        for (TeacherDTO.ExamResultResponse res : results) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(rowNum - 1);
+            row.createCell(1).setCellValue(res.getStudentCode());
+            row.createCell(2).setCellValue(res.getFullName());
+            row.createCell(3).setCellValue(res.getClassCode());
+            row.createCell(4).setCellValue(res.getCorrectCount() + "/" + res.getTotalQuestions());
+            row.createCell(5).setCellValue(res.getStartTime());
+            row.createCell(6).setCellValue(res.getSubmitTime());
+
+            // Điểm số
+            Cell scoreCell = row.createCell(7);
+            scoreCell.setCellValue(res.getScore() != null ? res.getScore().doubleValue() : 0);
+
+            // Vi phạm
+            row.createCell(8).setCellValue(res.getInvalidAction() != null ? res.getInvalidAction() : 0);
+        }
+
+        // Auto size cột
+        for (int i = 0; i < columns.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Gửi về Client
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=KetQua_" + examId + ".xlsx";
+        response.setHeader(headerKey, headerValue);
+
+        ServletOutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        outputStream.close();
     }
 }
