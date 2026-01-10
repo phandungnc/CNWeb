@@ -18,7 +18,7 @@ public class CorsFilterConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         //  Cho phép Frontend
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:5173", "https://thitructuyen5294.web.app","https://phanducdung.id.vn/"));
 
         // Cho phép tất cả method (GET, POST, PUT, DELETE, OPTIONS)
         config.setAllowedMethods(List.of("*"));
