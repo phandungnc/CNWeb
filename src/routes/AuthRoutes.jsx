@@ -2,7 +2,7 @@ import React from "react";
 import { Route, Navigate } from "react-router-dom";
 import LoginPage from "../pages/LoginPage/LoginPage";
 import RegisterPage from "../pages/RegisterPage/RegisterPage";
-import { useUser } from "../contexts/UserContext";
+import { useUser } from "../context/UserContext";
 
 const AuthRoutes = () => {
   const { isAuthenticated } = useUser();
@@ -14,7 +14,7 @@ const AuthRoutes = () => {
     ];
   }
 
-  // Nếu chưa đăng nhập, cho phép truy cập login/register, và redirect root về login
+  // Nếu chưa đăng nhập, cho phép truy cập login, và redirect root về login
   return [
     <Route path="/" element={<Navigate to="/login" />} key="root-redirect" />,
     <Route path="/login" element={<LoginPage />} key="login" />,
