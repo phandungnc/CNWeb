@@ -7,17 +7,23 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [loading, setLoading] = useState(true); // Thêm trạng thái loading
   const navigate = useNavigate();
 
   useEffect(() => {
     if (token) {
-      // Load thông tin user khi F5 trang
       userService.getMyProfile()
-        .then(data => setUser(data))
+        .then(data => {
+          setUser(data);
+        })
         .catch(() => {
-            // Nếu Token lỗi hoặc Session hết hạn Logout luôn
-            logout(); 
+          logout();
+        })
+        .finally(() => {
+          setLoading(false); // Tắt loading dù thành công hay thất bại
         });
+    } else {
+      setLoading(false); // Không có token cũng tắt loading
     }
   }, [token]);
 
@@ -27,7 +33,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('refreshToken', refreshToken);
     setUser({ roleName: role });
 
-    // Điều hướng theo quyền
     if (role === 'ADMIN') navigate('/admin');
     else if (role === 'TEACHER') navigate('/teacher');
     else if (role === 'STUDENT') navigate('/student');
@@ -43,7 +48,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!token, loading }}>
       {children}
     </AuthContext.Provider>
   );

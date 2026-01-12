@@ -35,8 +35,13 @@ const Login = () => {
     try {
       //Gọi API đăng nhập
       const res = await authService.login({ userCode, password });
-      //Lấy token từ phản hồi
-      const accessToken = res.data?.accessToken || res.accessToken;
+
+const accessToken =
+  res.data?.accessToken || res.accessToken;
+
+const refreshToken =
+  res.data?.refreshToken;
+
 
       if (!accessToken) {
         throw new Error("Lỗi: Không nhận được Token từ server.");
@@ -53,8 +58,7 @@ const Login = () => {
       console.log("Đăng nhập thành công với quyền:", role);
 
       //Gọi hàm login để điều hướng
-      await login(accessToken, role); 
-
+await login(accessToken, refreshToken, role);
     } catch (err) {
       console.error(err);
       const msg = err.response?.data?.message || err.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.';
