@@ -123,12 +123,12 @@ const UserManager = () => {
         <table style={{ width: '100%', minWidth: '800px', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
           <thead style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
             <tr>
-              <th style={{ padding: '15px', textAlign: 'left', color: '#4b5563' }}>Mã số</th>
-              <th style={{ padding: '15px', textAlign: 'left', color: '#4b5563' }}>Họ và tên</th>
-              <th style={{ padding: '15px', textAlign: 'left', color: '#4b5563' }}>Email</th>
-              <th style={{ padding: '15px', textAlign: 'left', color: '#4b5563' }}>SĐT</th> {/* Đã thêm SĐT */}
-              <th style={{ padding: '15px', textAlign: 'left', color: '#4b5563' }}>Vai trò</th>
-              <th style={{ padding: '15px', textAlign: 'right', color: '#4b5563' }}>Hành động</th>
+              <th style={{ padding: '15px', textAlign: 'center', color: '#4b5563' }}>Mã số</th>
+              <th style={{ padding: '15px', textAlign: 'center', color: '#4b5563' }}>Họ và tên</th>
+              <th style={{ padding: '15px', textAlign: 'center', color: '#4b5563' }}>Email</th>
+              <th style={{ padding: '15px', textAlign: 'center', color: '#4b5563' }}>SĐT</th> {/* Đã thêm SĐT */}
+              <th style={{ padding: '15px', textAlign: 'center', color: '#4b5563' }}>Vai trò</th>
+              <th style={{ padding: '15px', textAlign: 'center', color: '#4b5563' }}>Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -139,11 +139,11 @@ const UserManager = () => {
             ) : (
               users.map(u => (
                 <tr key={u.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                  <td style={{ padding: '15px' }}>{u.userCode}</td>
-                  <td style={{ padding: '15px', fontWeight: '500' }}>{u.fullName}</td>
-                  <td style={{ padding: '15px', color: '#6b7280' }}>{u.email}</td>
-                  <td style={{ padding: '15px' }}>{u.phoneNumber}</td> 
-                  <td style={{ padding: '15px' }}>
+                  <td style={{ padding: '15px', textAlign: 'center' }}>{u.userCode}</td>
+                  <td style={{ padding: '15px', fontWeight: '500', textAlign: 'center' }}>{u.fullName}</td>
+                  <td style={{ padding: '15px', color: '#6b7280', textAlign: 'center' }}>{u.email}</td>
+                  <td style={{ padding: '15px', textAlign: 'center' }}>{u.phoneNumber}</td> 
+                  <td style={{ padding: '15px', textAlign: 'center' }}>
                     <span style={{ 
                       padding: '4px 10px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '600',
                       backgroundColor: u.roleName === 'TEACHER' ? '#eff6ff' : '#ecfdf5',
@@ -152,21 +152,24 @@ const UserManager = () => {
                       {u.roleName}
                     </span>
                   </td>
-                  <td style={{ padding: '15px', textAlign: 'right' }}>
-                    <button 
-                        className="modern-btn btn-gray" 
-                        style={{ padding: '6px 12px', fontSize: '0.8rem', marginRight: '8px' }}
-                        onClick={() => handleEditClick(u)} // Nút Sửa
-                    >
-                        Sửa
-                    </button>
-                    <button 
-                      className="modern-btn" 
-                      style={{ padding: '6px 12px', fontSize: '0.8rem', backgroundColor: '#ef4444', color: 'white' }}
-                      onClick={() => handleDelete(u.id)}
-                    >
-                      Xóa
-                    </button>
+                  {/* Sử dụng Flexbox để căn chỉnh nút hành động */}
+                  <td style={{ padding: '15px' }}>
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                        <button 
+                            className="modern-btn btn-gray" 
+                            style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                            onClick={() => handleEditClick(u)} // Nút Sửa
+                        >
+                            Sửa
+                        </button>
+                        <button 
+                        className="modern-btn" 
+                        style={{ padding: '6px 12px', fontSize: '0.8rem', backgroundColor: '#ef4444', color: 'white' }}
+                        onClick={() => handleDelete(u.id)}
+                        >
+                        Xóa
+                        </button>
+                    </div>
                   </td>
                 </tr>
               ))

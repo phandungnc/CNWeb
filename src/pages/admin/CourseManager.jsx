@@ -235,11 +235,11 @@ const CourseManager = () => {
 
     return (
         <div>
-            {/*  */}
+            {/* */}
             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', background: '#fff', padding: '15px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
                     <button onClick={() => setViewMode('COURSE_LIST')} className="modern-btn btn-gray" style={{padding: '8px 15px'}}>
-                        ⬅ Quay lại
+                        Quay lại
                     </button>
                     <div>
                         <h3 style={{margin: 0, color: '#1a1a1a', display: 'inline-block', marginRight: '10px'}}>{info.name}</h3>
@@ -283,7 +283,7 @@ const CourseManager = () => {
         <div>
              <div style={{display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px', background: '#fff', padding: '15px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)'}}>
                 <button onClick={() => setViewMode('COURSE_DETAIL')} className="modern-btn btn-gray" style={{padding: '8px 15px'}}>
-                    ⬅ Quay lại
+                    Quay lại
                 </button>
                 <div>
                     <h3 style={{margin: 0, color: '#059669', display: 'inline-block', marginRight: '10px'}}>Lớp: {info.classCode}</h3>
@@ -291,30 +291,31 @@ const CourseManager = () => {
                 </div>
             </div>
 
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px'}}>
+            {/* Sử dụng class member-grid để responsive giống ClassManager */}
+            <div className="member-grid">
                 {/* Giáo viên */}
-                <div className="modern-card" style={{margin: 0, maxWidth: '100%', padding: '20px'}}>
+                <div className="modern-card" style={{margin: 0, maxWidth: '100%', padding: '20px', height: 'fit-content'}}>
                     <h4 style={{borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: 0}}>Giáo viên ({teachers.length})</h4>
                     <ul style={{listStyle: 'none', padding: 0}}>
                         {teachers.map(t => (
-                            <li key={t.id} style={{padding: '8px 0', borderBottom: '1px solid #f9f9f9', fontSize: '0.95rem'}}>
-                                <div style={{fontWeight: '600'}}>{t.fullName}</div>
-                                <div style={{color: '#555'}}>{t.userCode}</div>
-                                <div style={{color: '#555'}}>{t.email}</div>
+                            <li key={t.id} style={{padding: '8px 0', borderBottom: '1px solid #f9f9f9', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                                <div><div style={{fontWeight: '600'}}>{t.fullName}</div><div style={{fontSize:'0.85rem', color: '#555'}}>{t.userCode}</div>
+                                <div style={{fontSize:'0.85rem', color: '#555'}}>{t.email}</div>
+                                </div>
                             </li>
                         ))}
                     </ul>
                 </div>
 
                 {/* Học sinh */}
-                <div className="modern-card" style={{margin: 0, maxWidth: '100%', padding: '20px'}}>
+                <div className="modern-card" style={{margin: 0, maxWidth: '100%', padding: '20px', height: 'fit-content'}}>
                     <h4 style={{borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: 0}}>Học sinh ({students.length})</h4>
                     <ul style={{listStyle: 'none', padding: 0}}>
                         {students.map(s => (
-                            <li key={s.id} style={{padding: '8px 0', borderBottom: '1px solid #f9f9f9', fontSize: '0.95rem'}}>
-                                <div style={{fontWeight: '600'}}>{s.fullName}</div>
-                                <div style={{color: '#555'}}>{s.userCode}</div>
-                                <div style={{color: '#555'}}>{s.email}</div>
+                            <li key={s.id} style={{padding: '8px 0', borderBottom: '1px solid #f9f9f9', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                                <div><div style={{fontWeight: '600'}}>{s.fullName}</div><div style={{fontSize:'0.85rem', color: '#555'}}>{s.userCode}</div>
+                                <div style={{fontSize:'0.85rem', color: '#555'}}>{s.email}</div>
+                                </div>
                             </li>
                         ))}
                     </ul>
@@ -342,11 +343,23 @@ const CourseManager = () => {
             gap: 15px;
         }
 
+        /* Grid cho chi tiết thành viên (fix responsive ô trên ô dưới) */
+        .member-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
         /* Responsive Mobile */
         @media (max-width: 768px) {
             .course-grid { grid-template-columns: 1fr; }
             .class-grid { grid-template-columns: repeat(2, 1fr); }
             .modern-card { padding: 15px; }
+            
+            /* Responsive cho member grid: stack dọc */
+            .member-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .course-card {

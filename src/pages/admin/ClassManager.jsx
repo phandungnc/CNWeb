@@ -215,7 +215,7 @@ const ClassManager = () => {
             {/* Header */}
             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', background: '#fff', padding: '15px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)'}}>
                 <div style={{display:'flex', alignItems:'center', gap:'15px'}}>
-                    <button onClick={() => setViewMode('LIST')} className="modern-btn btn-gray" style={{padding: '8px 15px'}}>⬅ Quay lại</button>
+                    <button onClick={() => setViewMode('LIST')} className="modern-btn btn-gray" style={{padding: '8px 15px'}}>Quay lại</button>
                     <div>
                         <h3 style={{margin: 0, color: '#059669', display: 'inline-block', marginRight: '10px'}}>Lớp: {info.classCode}</h3>
                         <span style={{color: '#666'}}>({info.course?.name})</span>
@@ -230,9 +230,10 @@ const ClassManager = () => {
                 </button>
             </div>
 
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px'}}>
+            {/* Sử dụng class member-grid để responsive */}
+            <div className="member-grid">
                 {/* GIÁO VIÊN */}
-                <div className="modern-card" style={{margin: 0, maxWidth: '100%', padding: '20px'}}>
+                <div className="modern-card" style={{margin: 0, maxWidth: '100%', padding: '20px', height: 'fit-content'}}>
                     <h4 style={{borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: 0}}>
                         Giáo viên ({teachers.length})
                     </h4>
@@ -251,7 +252,7 @@ const ClassManager = () => {
                 </div>
 
                 {/* HỌC SINH */}
-                <div className="modern-card" style={{margin: 0, maxWidth: '100%', padding: '20px'}}>
+                <div className="modern-card" style={{margin: 0, maxWidth: '100%', padding: '20px', height: 'fit-content'}}>
                     <h4 style={{borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: 0}}>
                         Học sinh ({students.length})
                     </h4>
@@ -282,10 +283,23 @@ const ClassManager = () => {
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
         }
+        
+        /* Grid cho chi tiết thành viên (fix responsive ô trên ô dưới) */
+        .member-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
         @media (max-width: 768px) {
             .class-grid-main { grid-template-columns: repeat(2, 1fr); }
             .modern-card { padding: 15px; }
             .user-select-item { flex-direction: column; align-items: flex-start; }
+            
+            /* Responsive cho member grid: stack dọc */
+            .member-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .course-card {
@@ -406,8 +420,6 @@ const ClassManager = () => {
                         </div>
                     )}
                 </div>
-
-
 
                 <div className="btn-actions" style={{padding: '20px', margin: 0, background: '#f9f9f9', borderRadius: '0 0 12px 12px'}}>
                     <button type="button" className="modern-btn btn-gray" onClick={() => setShowAddMemberModal(false)}>Đóng</button>
