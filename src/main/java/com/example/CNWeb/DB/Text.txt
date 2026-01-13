@@ -1,0 +1,115 @@
+-- 1. vai trò
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(20) UNIQUE NOT NULL -- ADMIN, TEACHER, STUDENT
+);
+
+-- 2. người dùng
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    user_code VARCHAR(20) UNIQUE NOT NULL, -- Mã số SV/GV
+    email VARCHAR(50) UNIQUE NOT NULL,
+    phone_number VARCHAR(15) UNIQUE NOT NULL;
+    password_hash TEXT NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    role_id INTEGER REFERENCES roles(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. sessions, sau tự xử lý đăng nhập 1tb trong code thay vì constraint
+CREATE TABLE user_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id INTEGER  REFERENCES users(id) ON DELETE CASCADE,
+    refresh_token TEXT NOT NULL UNIQUE,
+    expiry_date TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. khóa học của môn nào đó
+CREATE TABLE courses (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    note TEXT,
+    start_time TIMESTAMP, -- Thời gian bắt đầu khóa học
+    end_time TIMESTAMP,   -- Thời gian kết thúc khóa học
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 5. lớp học
+CREATE TABLE classes (
+    id SERIAL PRIMARY KEY,
+    class_code VARCHAR(20) UNIQUE NOT NULL,
+    course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. bảng liên kết Học sinh/Giáo viên vào Lớp
+CREATE TABLE class_members (
+    class_id INTEGER REFERENCES classes(id) ON DELETE CASCADE,
+    user_id INTEGER  REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (class_id, user_id)
+);
+
+-- 7. ngân hàng
+CREATE TABLE bank_questions (
+    id SERIAL PRIMARY KEY,
+    course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    question_type VARCHAR(20) NOT NULL, -- SINGLE (1 chọn), MULTIPLE (nhiều chọn)
+    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+-- 8. các lựa chọn trong câu hỏi và đáp án
+CREATE TABLE question_options (
+    id SERIAL PRIMARY KEY,
+    question_id INTEGER REFERENCES bank_questions(id) ON DELETE CASCADE,
+    option_text TEXT NOT NULL,
+    is_correct BOOLEAN DEFAULT FALSE
+);
+
+-- 9. đề thi
+CREATE TABLE exams (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
+    title VARCHAR(100) NOT NULL,
+    duration_minutes INTEGER NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    max_attempts INTEGER DEFAULT 1, -- đặt số lần làm
+    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- 10. Câu hỏi trong đề thi (Lấy từ ngân hàng)
+CREATE TABLE exam_questions (
+    exam_id UUID REFERENCES exams(id) ON DELETE CASCADE,
+    question_id INTEGER REFERENCES bank_questions(id) ON DELETE CASCADE,
+    PRIMARY KEY (exam_id, question_id)
+);
+
+-- 11. Lượt làm bài của sinh viên
+CREATE TABLE exam_submissions (
+    id SERIAL PRIMARY KEY,
+    exam_id UUID REFERENCES exams(id) ON DELETE CASCADE,
+    student_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    submit_time TIMESTAMP,
+    attempt_number INTEGER DEFAULT 1, -- lượt làm hiện tại
+    score NUMERIC(5, 2) DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'IN_PROGRESS', -- IN_PROGRESS, SUBMITTED
+    invalid_action INTEGER DEFAULT 0, -- ghi lại số thao tác k hợp lệ
+    -- mỗi học sinh, tại mỗi đề thi, chỉ có 1 bản ghi cho 1 lần làm bài
+    CONSTRAINT uq_exam_student_attempt UNIQUE(exam_id, student_id, attempt_number)
+);
+
+-- 12. câu trả lời của học sinh
+CREATE TABLE student_answers (
+    id SERIAL PRIMARY KEY,
+    submission_id INTEGER REFERENCES exam_submissions(id) ON DELETE CASCADE,
+    question_id INTEGER REFERENCES bank_questions(id),
+    option_id INTEGER REFERENCES question_options(id) -- Option sinh viên chọn
+);
+
+-- them vai tro
+INSERT INTO roles (name) VALUES ('ADMIN');
+INSERT INTO roles (name) VALUES ('TEACHER');
+INSERT INTO roles (name) VALUES ('STUDENT');

@@ -1,4 +1,4 @@
-# Logs
+# --- Frontend & Common Logs ---
 logs
 *.log
 npm-debug.log*
@@ -12,13 +12,36 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+# --- Backend & Java (Maven) ---
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+build/
+
+# --- IDEs (VS Code, IntelliJ, NetBeans) ---
+.vscode/
 .idea
+*.iws
+*.iml
+*.ipr
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+/nbproject/private/
+/nbbuild/
+/.nb-gradle/
+
+# --- Environment Variables ---
+.env
+docker/.env
+
+# --- Others ---
 .DS_Store
 *.suo
-*.ntvs*
-*.njsproj
-*.sln
 *.sw?

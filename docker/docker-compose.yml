@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_DB: thitracnghiem
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: cnweb-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    env_file:
+      - ../.env
+    environment:
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+
+volumes:
+  postgres_data:
