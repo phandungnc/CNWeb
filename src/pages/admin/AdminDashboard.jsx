@@ -44,10 +44,10 @@ const AdminDashboard = () => {
       </div>
       
       <div className="modern-card" style={{ margin: '0', maxWidth: '100%' }}>
-        <h3 className="card-title" style={{ textAlign: 'left', borderBottom: 'none', paddingBottom: '0' }}>
+        <h3 className="card-title" style={{ textAlign: 'center', borderBottom: 'none', paddingBottom: '0' }}>
           Xin chào Quản trị viên!
         </h3>
-        <p style={{ color: '#6b7280' }}>
+        <p style={{ textAlign: 'center', color: '#6b7280' }}>
           Sử dụng bảng điều khiển để quản lý người dùng, tài khoản và các chức năng khác của hệ thống.
         </p>
       </div>

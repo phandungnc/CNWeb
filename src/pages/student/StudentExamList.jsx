@@ -177,8 +177,8 @@ const StudentExamList = () => {
                         <thead>
                             <tr style={{background: '#f9fafb', borderBottom: '2px solid #e5e7eb'}}>
                                 <th style={{padding: '10px', textAlign: 'center'}}>STT</th>
-                                <th style={{padding: '10px', textAlign: 'left'}}>Bắt đầu</th>
-                                <th style={{padding: '10px', textAlign: 'left'}}>Nộp bài</th>
+                                <th style={{padding: '10px', textAlign: 'center'}}>Bắt đầu</th>
+                                <th style={{padding: '10px', textAlign: 'center'}}>Nộp bài</th>
                                 <th style={{padding: '10px', textAlign: 'center'}}>Số câu đúng</th>
                                 <th style={{padding: '10px', textAlign: 'center'}}>Điểm</th>
                                 <th style={{padding: '10px', textAlign: 'center'}}>Vi phạm</th>
@@ -188,14 +188,14 @@ const StudentExamList = () => {
                             {historyData.map((h, index) => (
                                 <tr key={h.submissionId} style={{borderBottom: '1px solid #f3f4f6'}}>
                                     <td style={{padding: '10px', textAlign: 'center'}}>#{historyData.length - index}</td>
-                                    <td style={{padding: '10px'}}>{h.startTime}</td>
-                                    <td style={{padding: '10px'}}>{h.submitTime}</td>
+                                    <td style={{padding: '10px', textAlign: 'center'}}>{h.startTime}</td>
+                                    <td style={{padding: '10px', textAlign: 'center'}}>{h.submitTime}</td>
                                     <td style={{padding: '10px', textAlign: 'center'}}>{h.correctCount}/{h.totalQuestions}</td>
-                                    <td style={{padding: '10px', textAlign: 'center', fontWeight: 'bold', color: h.score >= 5 ? '#10b981' : '#ef4444'}}>
+                                    <td style={{padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#000000'}}>
                                         {h.score}
                                     </td>
-                                    <td style={{padding: '10px', textAlign: 'center', color: h.invalidAction > 0 ? '#ef4444' : '#d1d5db'}}>
-                                        {h.invalidAction > 0 ? h.invalidAction : '-'}
+                                    <td style={{padding: '10px', textAlign: 'center', color: h.invalidAction > 0 ? '#ef4444' : '#0edd15'}}>
+                                        {h.invalidAction > 0 ? h.invalidAction : '0'}
                                     </td>
                                 </tr>
                             ))}

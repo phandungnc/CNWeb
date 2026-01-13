@@ -20,6 +20,7 @@ import StudentDashboard from './pages/student/StudentDashboard';
 import StudentCourseDetail from './pages/student/StudentCourseDetail';
 import StudentClassManager from './pages/student/StudentClassManager';
 import StudentExamList from './pages/student/StudentExamList';
+import StudentExamRoom from './pages/student/StudentExamRoom';
 //teacher imports
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import TeacherCourseDetail from './pages/teacher/TeacherCourseDetail';
@@ -51,6 +52,9 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route element={<PrivateRoute roles={['STUDENT']} />}>
+         <Route path="/student/exam/:examId" element={<StudentExamRoom />} />
+      </Route>
 
       <Route element={<PrivateRoute />}>
         <Route element={<MainLayout />}>
